@@ -1,11 +1,22 @@
 import { Avatar, IconButton } from '@mui/material'
-import React from 'react'
+import React, {useState} from 'react'
 import './Chat.css'
 import { AttachFile, SearchOutlined, MoreVert } from '@mui/icons-material';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import MicIcon from '@mui/icons-material/Mic';
+import axios from './axios'
 
-function Chat() {
+function Chat({messages}) {
+  const[input, setInput] = useState("");
+  const sendMessage = async(e)=>{
+      e.preventDefault();
+      await axios.post("/messages/new",{
+        message: input,
+        name: "Demo name",
+        timestamp: "just now",
+        received: true
+      })
+  }
   return (
     <div className='chat'>
       <div className='chatHeader'>
@@ -27,22 +38,20 @@ function Chat() {
         </div>
       </div>
       <div className='chatBody'>
-        <p className='chatMessage'>
-          <span className='chatName'>Abhishek</span>
-          this is a message
-          <span className='chatTime'>{new Date().toUTCString()}</span>
+        {messages.map((message)=>{
+          return <p className={`chatMessage ${message.received ? "chatRecieve" : ""}`}>
+          <span className='chatName'>{message.name}</span>
+          {message.message}
+          <span className='chatTime'>{message.timestamp}</span>
         </p>
-        <p className='chatMessage chatRecieve'>
-          <span className='chatName'>Abhishek</span>
-          this is a message
-          <span className='chatTime'>{new Date().toUTCString()}</span>
-        </p>
+        })}
+        
       </div>
       <div className='chatFooter'>
         <InsertEmoticonIcon/>
         <form>
-          <input type="text" placeholder='Type a message'/>
-          <button type='submit'>Send a message</button>
+          <input value={input} onChange={(e)=> setInput(e.target.value)} type="text" placeholder='Type a message'/>
+          <button onClick={sendMessage} type='submit'>Send a message</button>
         </form>
         <MicIcon/>
       </div>
